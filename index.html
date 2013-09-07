@@ -49,6 +49,7 @@ var x = d3.scale.linear()
     .range([0,w]);
 
 var y = d3.scale.linear()
+    .domain([-0.07,0])
     .range([h,0]);
 
 var xAxis = d3.svg.axis()
@@ -74,6 +75,14 @@ var byMonth = d3.nest()
 
 var monthsByMonth;
 
+function currentRedOthersGrey(d, i) {
+    return i == recessions.length-1 ? 'red' : 'grey';
+}
+
+function currentThickOthersThin(d, i ) {
+    return i == recessions.length-1 ? 2.5 : 1;
+}
+
 d3.csv("data/CES0000000001.csv", function(err, years) {
 
     var months = [];
@@ -88,12 +97,8 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         });
     });
 
-    var first = recessions[9][0];
-    var last = recessions[9][1];
-
     var xf = crossfilter(months);
     var monthDim = xf.dimension(month);
-    monthDim.filterRange([first, last]);
 
     function monthsAfter(start) {
         var sy = start.month.getFullYear();
@@ -113,18 +118,6 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
     }
 
     monthsByMonth = byMonth.map( months );
-    var start = monthsByMonth[first][0];
-
-    var monthsAfterStart = monthsAfter(start);
-    var changeSinceStart = changeSince(start);
-
-    var changeLine = d3.svg.line()
-        .x(function(d) { return x( monthsAfterStart(d) ); })
-        .y(function(d, i) { return y( changeSinceStart(d, i) ); });
-
-    var selection = monthDim.bottom( Infinity );
-
-    y.domain(d3.extent(selection, changeSinceStart));
 
     svg.append('g')
         .attr('class', 'x axis')
@@ -135,11 +128,30 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         .attr('class', 'y axis')
         .call(yAxis);
 
-    svg.append('path')
-        .attr('d', changeLine(selection))
-        .attr('stroke', 'blue')
-        .attr('stroke-width', 1)
+    svg.selectAll('.recession')
+        .data(recessions)
+      .enter().append('path')
+        .attr('class', 'recession')
+        .attr('d', drawLine)
+        .attr('stroke', currentRedOthersGrey)
+        .attr('stroke-width', currentThickOthersThin)
         .attr('fill', 'none');
+
+    function drawLine(d) {
+        monthDim.filterRange([d[0], d[1]]);
+
+        var start = monthsByMonth[d[0]][0];
+        var monthsAfterStart = monthsAfter(start);
+        var changeSinceStart = changeSince(start);
+
+        var changeLine = d3.svg.line()
+            .x(function(d) { return x( monthsAfterStart(d) ); })
+            .y(function(d, i) { return y( changeSinceStart(d, i) ); });
+
+        var selection = monthDim.bottom( Infinity );
+
+        return changeLine(selection);
+    }
 
 });
 
