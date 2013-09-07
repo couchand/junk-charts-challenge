@@ -106,8 +106,9 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
     }
 
     function changeSince(start) {
+        var inverse = 1 / start.value
         return function(d) {
-            return (d.value / start.value) - 1;
+            return (d.value * inverse) - 1;
         };
     }
 
