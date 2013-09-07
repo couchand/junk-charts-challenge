@@ -14,7 +14,7 @@ history
 In a [post](http://andrewpwheeler.wordpress.com/2013/03/18/the-junk-charts-challenge-remaking-a-great-line-chart-in-spss/)
 on his blog Andrew Wheeler built some charts as a response
 to Kaiser Fung's [comments](http://junkcharts.typepad.com/junk_charts/2013/02/remaking-a-great-chart.html)
-on his blog about making the [original chart](http://www.calculatedriskblog.com/2013/04/march-employment-report-88000-jobs-76.html)
+on his blog about remaking the [original chart](http://www.calculatedriskblog.com/2013/04/march-employment-report-88000-jobs-76.html)
 posted on Calculated Risk.
 
 Kaiser's assertion was that it was easier to make such a chart in
