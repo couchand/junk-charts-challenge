@@ -65,7 +65,11 @@ recessions[recessions.length-1].current = true;
 
 var byDecade = d3.nest()
     .key(function(d) {
-        return Math.floor(d[0].getFullYear() / 20) * 20;
+        var first = (Math.floor(d[0].getFullYear() / 20) * 20);
+        var second = first - 1890;
+        return first == 2000 ?
+            '' + first + 's' :
+            '' + first + 's-' + second + 's';
     });
 
 var recessionsByDecade = byDecade.entries(recessions);
@@ -107,6 +111,11 @@ var svg = d3.select('#viz')
     .attr('height', height+2*margin)
     .append('g')
     .attr('transform','translate('+margin+','+margin+')');
+
+svg.append('text')
+    .attr('dy', -16)
+    .attr('font-size', 16)
+    .text('Depth of Jobs Recession and Duration of Recovery');
 
 function month(d) { return d.month; }
 
@@ -156,7 +165,19 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
     svg.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,'+height+')')
-        .call(xAxis);
+        .call(xAxis)
+      .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dx', width)
+        .attr('dy', 30)
+        .text('Months since Beginning of Recession');
+
+    svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('dx', -height)
+        .attr('dy', -40)
+        .text('Percent Job Losses Relative to Peak Employment');
 
     svg.selectAll('.x.grid')
         .data(xAxis.tickValues().filter(function(d){
@@ -182,6 +203,13 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         selection.append('g')
             .attr('class', 'y axis')
             .call(yAxis);
+
+        selection.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('transform', 'rotate(-90)')
+            .attr('dx', -h)
+            .attr('dy', width + 12)
+            .text(function(d) { return d.key; });
 
         selection.append('line')
             .attr('class', 'zeroline')
