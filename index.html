@@ -157,13 +157,26 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         var monthsAfterStart = monthsAfter(start);
         var changeSinceStart = changeSince(start);
 
+        var end = monthsByMonth[d[1]];
+        end = end ? end[0] : months[months.length-1];
+
         var changeLine = d3.svg.line()
             .x(function(d) { return x( monthsAfterStart(d) ); })
             .y(function(d, i) { return y( changeSinceStart(d) ); });
 
         var selection = monthDim.bottom( Infinity );
 
-        return changeLine(selection);
+        var min = start, minVal = 0;
+
+        selection.forEach(function(d) {
+            var v = changeSinceStart(d);
+            if ( v < minVal ) {
+                min = d;
+                minVal = v;
+            }
+        });
+
+        return changeLine([start, min, end]);
     }
 
 });
