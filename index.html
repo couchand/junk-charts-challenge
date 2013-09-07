@@ -148,15 +148,6 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
 
     monthsByMonth = byMonth.map( months );
 
-    svg.selectAll('.decade')
-        .data(recessionsByDecade)
-      .enter().append('g')
-        .attr('class', 'decade')
-        .attr('transform', function(d, i) {
-            return 'translate(0,'+(i*h)+')';
-        })
-        .call(drawDecade);
-
     svg.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,'+height+')')
@@ -172,6 +163,15 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         .attr('y1', 0)
         .attr('x2', function(d) { return x(d); })
         .attr('y2', height);
+
+    svg.selectAll('.decade')
+        .data(recessionsByDecade)
+      .enter().append('g')
+        .attr('class', 'decade')
+        .attr('transform', function(d, i) {
+            return 'translate(0,'+(i*h)+')';
+        })
+        .call(drawDecade);
 
     function drawDecade(selection) {
         selection.append('g')
