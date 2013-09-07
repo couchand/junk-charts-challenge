@@ -15,10 +15,14 @@ body {
     shape-rendering: crispEdges;
 }
 
-.grid {
+.grid, .zeroline {
     fill: none;
     stroke: #999;
     shape-rendering: crispEdges;
+}
+
+.zeroline {
+    stroke-dasharray: 0,2,3,0;
 }
 
     </style>
@@ -176,9 +180,6 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
 
         selection.append('line')
             .attr('class', 'zeroline')
-            .attr('stroke', 'grey')
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '2,3')
             .attr('x1', x(0))
             .attr('y1', y(0))
             .attr('x2', x(xMax))
