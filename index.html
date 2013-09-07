@@ -15,6 +15,12 @@ body {
     shape-rendering: crispEdges;
 }
 
+.grid {
+    fill: none;
+    stroke: #999;
+    shape-rendering: crispEdges;
+}
+
     </style>
   <head>
   <body>
@@ -151,6 +157,17 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,'+height+')')
         .call(xAxis);
+
+    svg.selectAll('.x.grid')
+        .data(xAxis.tickValues().filter(function(d){
+            return !!d;
+        }))
+      .enter().append('line')
+        .attr('class', 'x grid')
+        .attr('x1', function(d) { return x(d); })
+        .attr('y1', 0)
+        .attr('x2', function(d) { return x(d); })
+        .attr('y2', height);
 
     function drawDecade(selection) {
         selection.append('g')
