@@ -1,6 +1,7 @@
 <html>
   <head>
     <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="https://raw.github.com/square/crossfilter/master/crossfilter.min.js"></script>
   <head>
   <body>
     <div id="viz"></div>
@@ -39,8 +40,10 @@ var svg = d3.select('#viz')
     .append('g')
     .attr('transform','translate('+m+','+m+')');
 
+function month(d) { return d.month; }
+
 var byMonth = d3.nest()
-    .key(function(d) { return d.month; });
+    .key(month);
 
 var monthsByMonth;
 
@@ -57,6 +60,13 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             });
         });
     });
+
+    var first = new Date(2000, 11, 1);
+    var last = new Date(2005, 1, 1);
+
+    var xf = crossfilter(months);
+    var monthDim = xf.dimension(month);
+    monthDim.filterRange([first, last]);
 
     function monthsAfter(start) {
         var sy = start.month.getFullYear();
@@ -75,7 +85,7 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
     }
 
     monthsByMonth = byMonth.map( months );
-    var start = monthsByMonth[new Date(2000,11,1)][0];
+    var start = monthsByMonth[first][0];
 
     var monthsAfterStart = monthsAfter(start);
     var changeSinceStart = changeSince(start);
@@ -97,7 +107,7 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         .call(yAxis);
 
     svg.append('path')
-        .attr('d', changeLine(months))
+        .attr('d', changeLine(monthDim.bottom( Infinity )))
         .attr('stroke', 'blue')
         .attr('stroke-width', 1)
         .attr('fill', 'none');
