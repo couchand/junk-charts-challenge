@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  <head>
+  <body>
+    <div id="viz"></div>
+    <script>
+
+var monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr',
+    'May', 'Jun', 'Jul', 'Aug',
+    'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+var format = d3.time.format('%Y-%b');
+
+d3.csv("data/CEU0000000001.csv", function(err, years) {
+
+    var months = [];
+
+    years.forEach(function(year) {
+        monthNames.forEach(function(month) {
+            months.push({
+                month: format.parse(year.Year+'-'+month),
+                value: year[month]
+            });
+        });
+    });
+
+    console.log(months);
+
+});
+
+    </script>
+  </body>
+</html>
