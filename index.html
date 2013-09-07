@@ -68,6 +68,10 @@ d3.csv("data/CEU0000000001.csv", function(err, years) {
         return d.value - months[i-1].value;
     }
 
+    var changeLine = d3.svg.line()
+        .x(function(d) { return x( month(d) ); })
+        .y(function(d, i) { return y2( change(d, i) ); });
+
     x.domain(d3.extent(months, month));
     y.domain(d3.extent(months, value));
     y2.domain(d3.extent(months, change));
@@ -93,6 +97,11 @@ d3.csv("data/CEU0000000001.csv", function(err, years) {
         .attr('r', 4)
         .attr('cx', function(d) { return x( month(d) ); })
         .attr('cy', function(d) { return y( value(d) ); });
+
+    svg.append('path')
+        .attr('d', changeLine(months))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 1);
 
     svg.selectAll('.dot2')
         .data(months)
