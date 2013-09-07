@@ -30,7 +30,7 @@ var monthNames = [
 var recessions = [
     [new Date(1948, 8, 1), new Date(1950, 7, 1)],
     [new Date(1953, 6, 1), new Date(1955, 6, 1)],
-    [new Date(1957, 7, 1), new Date(1959, 4, 1)],
+    [new Date(1957, 3, 1), new Date(1959, 4, 1)],
     [new Date(1960, 3, 1), new Date(1961, 12, 1)],
     [new Date(1970, 2, 1), new Date(1971, 9, 1)],
     [new Date(1974, 9, 1), new Date(1976, 2, 1)],
@@ -200,7 +200,7 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
                 min = d;
                 minVal = v;
             }
-            if ( !end && v > 0 ) {
+            if ( minVal < 0 && !end && v > 0 ) {
                 end = d;
             }
         });
