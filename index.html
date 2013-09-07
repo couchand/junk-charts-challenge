@@ -40,7 +40,6 @@ var recessions = [
     [new Date(2001, 1, 1), new Date(2005, 2, 1)],
     [new Date(2007, 12, 1), new Date()]
 ];
-
 recessions[recessions.length-1].current = true;
 
 var byDecade = d3.nest()
@@ -63,12 +62,12 @@ var xMax = 72
     yMin = -0.08;
 
 var x = d3.scale.linear()
-    .domain([0,xMax])
-    .range([0,width]);
+    .domain([0, xMax])
+    .range([0, width]);
 
 var y = d3.scale.linear()
-    .domain([yMin,0])
-    .range([h,0]);
+    .domain([yMin, 0])
+    .range([h, 0]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
