@@ -44,12 +44,15 @@ var w = 500,
     h = 400,
     m = 100;
 
+var xMax = 70
+    yMin = -0.07;
+
 var x = d3.scale.linear()
-    .domain([0,70])
+    .domain([0,xMax])
     .range([0,w]);
 
 var y = d3.scale.linear()
-    .domain([-0.07,0])
+    .domain([yMin,0])
     .range([h,0]);
 
 var xAxis = d3.svg.axis()
