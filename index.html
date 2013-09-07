@@ -159,7 +159,7 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
 
         var changeLine = d3.svg.line()
             .x(function(d) { return x( monthsAfterStart(d) ); })
-            .y(function(d, i) { return y( changeSinceStart(d, i) ); });
+            .y(function(d, i) { return y( changeSinceStart(d) ); });
 
         var selection = monthDim.bottom( Infinity );
 
