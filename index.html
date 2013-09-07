@@ -13,6 +13,20 @@ var monthNames = [
     'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
+var recessions = [
+    [new Date(1948, 8, 1), new Date(1950, 7, 1)],
+    [new Date(1953, 6, 1), new Date(1955, 6, 1)],
+    [new Date(1957, 7, 1), new Date(1959, 4, 1)],
+    [new Date(1960, 3, 1), new Date(1961, 12, 1)],
+    [new Date(1970, 2, 1), new Date(1971, 9, 1)],
+    [new Date(1974, 9, 1), new Date(1976, 2, 1)],
+    [new Date(1980, 2, 1), new Date(1981, 2, 1)],
+    [new Date(1981, 6, 1), new Date(1983, 11, 1)],
+    [new Date(1990, 5, 1), new Date(1993, 2, 1)],
+    [new Date(2001, 1, 1), new Date(2005, 2, 1)],
+    [new Date(2007, 12, 1), new Date()]
+];
+
 var format = d3.time.format('%Y-%b');
 
 var w = 500,
@@ -62,8 +76,8 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         });
     });
 
-    var first = new Date(2000, 11, 1);
-    var last = new Date(2005, 1, 1);
+    var first = recessions[9][0];
+    var last = recessions[9][1];
 
     var xf = crossfilter(months);
     var monthDim = xf.dimension(month);
