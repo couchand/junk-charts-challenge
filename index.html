@@ -25,6 +25,17 @@ body {
     stroke-dasharray: 0,2,3,0;
 }
 
+.recession {
+    stroke: grey;
+    stroke-width: 1;
+    fill: none;
+}
+
+.current.recession {
+    stroke: red;
+    stroke-width: 2.5;
+}
+
     </style>
   <head>
   <body>
@@ -104,13 +115,7 @@ var byMonth = d3.nest()
 
 var monthsByMonth;
 
-function currentRedOthersGrey(d) {
-    return d.current ? 'red' : 'grey';
-}
-
-function currentThickOthersThin(d) {
-    return d.current ? 2.5 : 1;
-}
+function current(d) { return !!d.current; }
 
 d3.csv("data/CES0000000001.csv", function(err, years) {
 
@@ -189,10 +194,8 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             .data(function(d) { return d.values; })
           .enter().append('path')
             .attr('class', 'recession')
-            .attr('d', drawLine)
-            .attr('stroke', currentRedOthersGrey)
-            .attr('stroke-width', currentThickOthersThin)
-            .attr('fill', 'none');
+            .classed('current', current)
+            .attr('d', drawLine);
     }
 
     function drawLine(d) {
