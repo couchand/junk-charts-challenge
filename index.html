@@ -164,12 +164,8 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
     }
 
     function monthsAfter(start) {
-        var sy = start.month.getFullYear();
-        var sm = start.month.getMonth();
         return function(d) {
-            var ys = d.month.getFullYear() - sy;
-            var ms = d.month.getMonth() - sm;
-            return 12*ys + ms;
+            return monthsBetween(start.month, d.month);
         };
     }
 
