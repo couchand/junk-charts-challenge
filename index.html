@@ -25,15 +25,29 @@ body {
     stroke-dasharray: 0,2,3,0;
 }
 
-.recession {
+.recession path.select {
+    stroke-width: 15;
+    stroke: white;
+    stroke-opacity: 0;
+}
+
+.recession path {
     stroke: grey;
     stroke-width: 1;
     fill: none;
 }
 
-.current.recession {
+.current.recession path {
     stroke: red;
     stroke-width: 2.5;
+}
+
+.recession text {
+    fill: none;
+}
+
+.recession:hover text{
+    fill: black;
 }
 
     </style>
@@ -113,7 +127,7 @@ var svg = d3.select('#viz')
     .attr('transform','translate('+margin+','+margin+')');
 
 svg.append('text')
-    .attr('dy', -16)
+    .attr('dy', -32)
     .attr('font-size', 16)
     .text('Depth of Jobs Recession and Duration of Recovery');
 
@@ -142,6 +156,12 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
 
     var xf = crossfilter(months);
     var monthDim = xf.dimension(month);
+
+    function monthsBetween(start, end){
+        var ys = end.getFullYear() - start.getFullYear();
+        var ms = end.getMonth() - start.getMonth();
+        return 12*ys + ms;
+    }
 
     function monthsAfter(start) {
         var sy = start.month.getFullYear();
@@ -218,12 +238,26 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             .attr('x2', x(xMax))
             .attr('y2', y(0));
 
-        selection.selectAll('.recession')
+        var recession = selection.selectAll('.recession')
             .data(function(d) { return d.values; })
-          .enter().append('path')
+          .enter().append('g')
             .attr('class', 'recession')
-            .classed('current', current)
+            .classed('current', current);
+
+        recession.append('path')
+            .attr('class', 'select')
             .attr('d', drawLine);
+
+        recession.append('path')
+            .attr('d', drawLine);
+
+        recession.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('x', function(d) {
+                return x( monthsBetween(d[0], d[1]) );
+            })
+            .attr('y', -8)
+            .text(function(d) { return d[0].getFullYear(); });
     }
 
     function drawLine(d) {
