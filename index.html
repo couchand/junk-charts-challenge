@@ -50,10 +50,21 @@ body {
     fill: black;
 }
 
+#controls {
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin-top: 10px;
+    margin-right: 30px;
+}
     </style>
   <head>
   <body>
     <div id="viz"></div>
+    <div id="controls">
+      <input id="simplify" type="checkbox"/>
+      <label for="simplify">Simplify?</label>
+    </div>
     <script>
 
 var monthNames = [
@@ -215,6 +226,8 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
         })
         .call(drawDecade);
 
+    d3.select('#simplify').on('change', updateLines);
+
     function drawDecade(selection) {
         selection.append('g')
             .attr('class', 'y axis')
@@ -241,11 +254,9 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             .classed('current', current);
 
         recession.append('path')
-            .attr('class', 'select')
-            .attr('d', drawLine);
+            .attr('class', 'select');
 
         recession.append('path')
-            .attr('d', drawLine);
 
         recession.append('text')
             .attr('text-anchor', 'middle')
@@ -254,6 +265,13 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             })
             .attr('y', -8)
             .text(function(d) { return d[0].getFullYear(); });
+
+        updateLines();
+    }
+
+    function updateLines() {
+        d3.selectAll('.recession').selectAll('path')
+            .attr('d', drawLine);
     }
 
     function drawLine(d) {
@@ -270,6 +288,9 @@ d3.csv("data/CES0000000001.csv", function(err, years) {
             .y(function(d, i) { return y( changeSinceStart(d) ); });
 
         var selection = monthDim.bottom( Infinity );
+
+        if ( d3.select('#simplify').property('checked') != true )
+            return changeLine(selection);
 
         var min = start, minVal = 0;
 
