@@ -6,6 +6,8 @@ introduction
 
 this is a chart comparing job losses in recessions since 1948.
 
+[check it out](http://couchand.github.io/junk-charts-challenge)
+
 it's built using [d3](d3js.org) and [crossfilter](square.github.io/crossfilter).
 
 history
