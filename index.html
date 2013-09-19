@@ -1,0 +1,320 @@
+<html>
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="https://raw.github.com/square/crossfilter/master/crossfilter.min.js"></script>
+    <style>
+
+body {
+    font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.grid, .zeroline {
+    fill: none;
+    stroke: #999;
+    shape-rendering: crispEdges;
+}
+
+.zeroline {
+    stroke-dasharray: 0,2,3,0;
+}
+
+.recession path.select,
+.current.recession path.select {
+    stroke-width: 15;
+    stroke: white;
+    stroke-opacity: 0;
+}
+
+.recession path {
+    stroke: grey;
+    stroke-width: 1;
+    fill: none;
+}
+
+.current.recession path {
+    stroke: red;
+    stroke-width: 2.5;
+}
+
+.recession text {
+    fill: none;
+}
+
+.recession:hover text{
+    fill: black;
+}
+
+#controls {
+    position: absolute;
+    top: 10;
+    left: 520;
+    margin-top: 10px;
+    margin-right: 30px;
+}
+    </style>
+  <head>
+  <body>
+    <div id="viz"></div>
+    <div id="controls">
+      <input id="simplify" type="checkbox"/>
+      <label for="simplify">Simplify?</label>
+    </div>
+    <script>
+
+var monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr',
+    'May', 'Jun', 'Jul', 'Aug',
+    'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+var recessions = [
+    [new Date(1948, 8, 1), new Date(1950, 7, 1)],
+    [new Date(1953, 6, 1), new Date(1955, 6, 1)],
+    [new Date(1957, 3, 1), new Date(1959, 4, 1)],
+    [new Date(1960, 3, 1), new Date(1961, 12, 1)],
+    [new Date(1970, 2, 1), new Date(1971, 9, 1)],
+    [new Date(1974, 9, 1), new Date(1976, 2, 1)],
+    [new Date(1980, 2, 1), new Date(1981, 2, 1)],
+    [new Date(1981, 6, 1), new Date(1983, 11, 1)],
+    [new Date(1990, 5, 1), new Date(1993, 2, 1)],
+    [new Date(2001, 1, 1), new Date(2005, 2, 1)],
+    [new Date(2007, 12, 1), new Date()]
+];
+recessions[recessions.length-1].current = true;
+
+var byDecade = d3.nest()
+    .key(function(d) {
+        var first = (Math.floor(d[0].getFullYear() / 20) * 20);
+        var second = first - 1890;
+        return first == 2000 ?
+            '' + first + 's' :
+            '' + first + 's-' + second + 's';
+    });
+
+var recessionsByDecade = byDecade.entries(recessions);
+
+var format = d3.time.format('%Y-%b');
+var percentage = d3.format('%');
+
+var width = 500,
+    height = 500,
+    margin = 60;
+
+var h = height / recessionsByDecade.length;
+
+var xMax = 72
+    yMin = -0.08;
+
+var x = d3.scale.linear()
+    .domain([0, xMax])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([yMin, 0])
+    .range([h, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickValues([0, 12, 24, 36, 48, 60, 72])
+    .orient('bottom');
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .tickValues([0, -0.02, -0.04, -0.06])
+    .tickFormat(percentage)
+    .orient('left');
+
+var svg = d3.select('#viz')
+    .append('svg')
+    .attr('width', width+2*margin)
+    .attr('height', height+2*margin)
+    .append('g')
+    .attr('transform','translate('+margin+','+margin+')');
+
+svg.append('text')
+    .attr('dy', -32)
+    .attr('font-size', 16)
+    .text('Depth of Jobs Recession and Duration of Recovery');
+
+function month(d) { return d.month; }
+
+var byMonth = d3.nest()
+    .key(month);
+
+var monthsByMonth;
+
+function current(d) { return !!d.current; }
+
+d3.csv("data/CES0000000001.csv", function(err, years) {
+
+    var months = [];
+
+    years.forEach(function(year) {
+        monthNames.forEach(function(month) {
+            if ( year[month] === ' ' ) return;
+            months.push({
+                month: format.parse(year.Year+'-'+month),
+                value: parseInt(year[month])
+            });
+        });
+    });
+
+    var xf = crossfilter(months);
+    var monthDim = xf.dimension(month);
+
+    function monthsBetween(start, end){
+        var ys = end.getFullYear() - start.getFullYear();
+        var ms = end.getMonth() - start.getMonth();
+        return 12*ys + ms;
+    }
+
+    function monthsAfter(start) {
+        return function(d) {
+            return monthsBetween(start.month, d.month);
+        };
+    }
+
+    function changeSince(start) {
+        var inverse = 1 / start.value
+        return function(d) {
+            return (d.value * inverse) - 1;
+        };
+    }
+
+    monthsByMonth = byMonth.map( months );
+
+    svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,'+height+')')
+        .call(xAxis)
+      .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dx', width)
+        .attr('dy', 30)
+        .text('Months after Beginning of Recession');
+
+    svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('dx', -height)
+        .attr('dy', -40)
+        .text('Percent Job Losses Relative to Peak Employment');
+
+    svg.selectAll('.x.grid')
+        .data(xAxis.tickValues().filter(function(d){
+            return !!d;
+        }))
+      .enter().append('line')
+        .attr('class', 'x grid')
+        .attr('x1', function(d) { return x(d); })
+        .attr('y1', 0)
+        .attr('x2', function(d) { return x(d); })
+        .attr('y2', height);
+
+    svg.selectAll('.decade')
+        .data(recessionsByDecade)
+      .enter().append('g')
+        .attr('class', 'decade')
+        .attr('transform', function(d, i) {
+            return 'translate(0,'+(i*h)+')';
+        })
+        .call(drawDecade);
+
+    d3.select('#simplify').on('change', updateLines);
+
+    function drawDecade(selection) {
+        selection.append('g')
+            .attr('class', 'y axis')
+            .call(yAxis);
+
+        selection.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('transform', 'rotate(-90)')
+            .attr('dx', -h)
+            .attr('dy', width + 12)
+            .text(function(d) { return d.key; });
+
+        selection.append('line')
+            .attr('class', 'zeroline')
+            .attr('x1', x(0))
+            .attr('y1', y(0))
+            .attr('x2', x(xMax))
+            .attr('y2', y(0));
+
+        var recession = selection.selectAll('.recession')
+            .data(function(d) { return d.values; })
+          .enter().append('g')
+            .attr('class', 'recession')
+            .classed('current', current);
+
+        recession.append('path')
+            .attr('class', 'select');
+
+        recession.append('path')
+
+        recession.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('x', function(d) {
+                return x( monthsBetween(d[0], d[1]) );
+            })
+            .attr('y', -8)
+            .text(function(d) { return d[0].getFullYear(); });
+
+        updateLines();
+    }
+
+    function updateLines() {
+        d3.selectAll('.recession').selectAll('path')
+            .attr('d', drawLine);
+    }
+
+    function drawLine(d) {
+        monthDim.filterRange([d[0], d[1]]);
+
+        var start = monthsByMonth[d[0]][0];
+        var monthsAfterStart = monthsAfter(start);
+        var changeSinceStart = changeSince(start);
+
+        var end;
+
+        var changeLine = d3.svg.line()
+            .x(function(d) { return x( monthsAfterStart(d) ); })
+            .y(function(d, i) { return y( changeSinceStart(d) ); });
+
+        var selection = monthDim.bottom( Infinity );
+
+        if ( d3.select('#simplify').property('checked') != true )
+            return changeLine(selection);
+
+        var min = start, minVal = 0;
+
+        selection.forEach(function(d) {
+            var v = changeSinceStart(d);
+            if ( v < minVal ) {
+                min = d;
+                minVal = v;
+            }
+            if ( minVal < 0 && !end && v > 0 ) {
+                end = d;
+            }
+        });
+
+        if ( !end ) {
+            end = months[months.length-1];
+        }
+
+        return changeLine([start, min, end]);
+    }
+
+});
+
+    </script>
+  </body>
+</html>
